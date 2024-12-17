@@ -1,0 +1,8 @@
+class CartScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> cart;
+
+  CartScreen({required this.cart});
+
+  int getTotalPrice() {
+    return cart.fold(0, (sum, item) => item['price'] + sum);
+  }

@@ -1,0 +1,139 @@
+Widget build(BuildContext context) {
+    final screens = [
+      MenuScreen(menuItems: menuItems, addToCart: addToCart),
+      CartScreen(cart: cart),
+    ];
+
+    return Scaffold(
+      body: screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu),
+            label: 'Menu',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MenuScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> menuItems;
+  final Function(Map<String, dynamic>) addToCart;
+
+  MenuScreen({required this.menuItems, required this.addToCart});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Street Food Menu'),
+      ),
+      body: ListView.builder(
+        itemCount: menuItems.length,
+        itemBuilder: (context, index) {
+          final item = menuItems[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Colors.orange[100],
+            child: ListTile(
+              leading: Text(item['image'], style: TextStyle(fontSize: 30)),
+              title: Text(item['name'],
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('₱${item['price']}'),
+              trailing: ElevatedButton(
+                child: Text('Add'),
+                onPressed: () => addToCart(item),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class CartScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> cart;
+
+  CartScreen({required this.cart});
+
+  int getTotalPrice() {
+    return cart.fold(0, (sum, item) => item['price'] + sum);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Your Cart'),
+      ),
+      body: cart.isEmpty
+          ? Center(
+              child: Text(
+                'Your cart is empty!',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cart.length,
+                    itemBuilder: (context, index) {
+                      final item = cart[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        color: Colors.orange[100],
+                        child: ListTile(
+                          leading: Text(item['image'],
+                              style: TextStyle(fontSize: 30)),
+                          title: Text(item['name']),
+                          subtitle: Text('₱${item['price']}'),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Total: ₱${getTotalPrice()}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ElevatedButton(
+                  child: Text('Checkout'),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Order placed!'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+    );
+  }
+}
